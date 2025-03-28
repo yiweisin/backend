@@ -34,18 +34,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Add CORS
+// Add CORS policy that allows any origin
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowAll",
         builder => builder
-            .WithOrigins(
-                "http://localhost:3000",     // For local development
-                "http://3.88.248.4"       // Your EC2 IP address
-            )
+            .AllowAnyOrigin()     // Allow requests from any origin
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowAnyHeader());
 });
 
 var app = builder.Build();
@@ -53,7 +49,7 @@ var app = builder.Build();
 // Comment out HTTPS redirection if you're not setting up HTTPS initially
 // app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
