@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
         builder => builder
             .WithOrigins(
                 "http://localhost:3000",     // For local development
-                "http://44.211.152.62"       // Your EC2 IP address
+                "http://3.88.248.4"       // Your EC2 IP address
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
