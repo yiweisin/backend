@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,22 +35,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Add CORS policy that allows any origin
+// Configure CORS with specific allowed origins
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("CorsPolicy",
         builder => builder
-            .AllowAnyOrigin()     // Allow requests from any origin
+            .WithOrigins("http://ec2-44-202-141-108.compute-1.amazonaws.com")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
 
-// Comment out HTTPS redirection if you're not setting up HTTPS initially
-// app.UseHttpsRedirection();
-
-app.UseCors("AllowAll");
+// Configure the HTTP request pipeline
+// IMPORTANT: CORS middleware must be called before Auth and other middleware
+app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
