@@ -420,3 +420,4 @@
 /Users/yiweisin/GitHub/backend/obj/Debug/net9.0/backend.pdb
 /Users/yiweisin/GitHub/backend/obj/Debug/net9.0/backend.genruntimeconfig.cache
 /Users/yiweisin/GitHub/backend/obj/Debug/net9.0/ref/backend.dll
+/Users/yiweisin/GitHub/backend/obj/Debug/net9.0/backend.sourcelink.json
