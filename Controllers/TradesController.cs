@@ -87,7 +87,6 @@ namespace backend.Controllers
         {
             var userId = GetUserId();
             
-            // Verify the stock exists
             var stock = _context.Stocks.Find(tradeDto.StockId);
             if (stock == null)
             {
@@ -99,7 +98,7 @@ namespace backend.Controllers
                 StockId = tradeDto.StockId,
                 UserId = userId,
                 EntryPrice = tradeDto.EntryPrice,
-                PNL = 0, // Initial PNL is 0
+                PNL = 0, 
                 Date = DateTime.UtcNow,
                 IsHolding = tradeDto.IsHolding
             };
@@ -107,7 +106,6 @@ namespace backend.Controllers
             _context.TradeHistories.Add(trade);
             _context.SaveChanges();
             
-            // Load the stock for the response
             _context.Entry(trade).Reference(t => t.Stock).Load();
             
             var response = new TradeHistoryDto

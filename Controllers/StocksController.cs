@@ -57,7 +57,6 @@ namespace backend.Controllers
             return stock;
         }
         
-        // Endpoint to get current prices for all stocks (more efficient than getting all stock details)
         [HttpGet("prices")]
         public ActionResult<IEnumerable<object>> GetStockPrices()
         {

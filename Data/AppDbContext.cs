@@ -15,7 +15,6 @@ namespace backend.Data
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Set PostgreSQL-specific table naming convention (lowercase table names)
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
                 var tableName = entity.GetTableName();
@@ -24,7 +23,6 @@ namespace backend.Data
                     entity.SetTableName(tableName.ToLower());
                 }
                 
-                // Set column names to lowercase
                 foreach (var property in entity.GetProperties())
                 {
                     var columnName = property.GetColumnName();
@@ -35,7 +33,6 @@ namespace backend.Data
                 }
             }
             
-            // Configure relationships
             modelBuilder.Entity<TradeHistory>()
                 .HasOne(t => t.Stock)
                 .WithMany()
@@ -46,7 +43,6 @@ namespace backend.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId);
                 
-            // Configure decimal precision for price fields
             modelBuilder.Entity<Stock>()
                 .Property(s => s.Price)
                 .HasColumnType("decimal(18,2)");
@@ -59,28 +55,23 @@ namespace backend.Data
                 .Property(t => t.PNL)
                 .HasColumnType("decimal(18,2)");
             
-            // Seed user data
+            //SEEDS
             modelBuilder.Entity<User>().HasData(
                 new User 
                 { 
                     Id = 1, 
                     Username = "demo", 
-                    // Password: "password"
                     PasswordHash = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8" 
                 }
             );
             
-            // Seed 30 stocks
             var stocks = new List<Stock>
             {
-                // Original 5 stocks
                 new Stock { Id = 1, Symbol = "AAPL", Name = "Apple Inc.", Price = 187.41m, Description = "Technology company that designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories." },
                 new Stock { Id = 2, Symbol = "MSFT", Name = "Microsoft Corporation", Price = 403.78m, Description = "Technology company that develops, licenses, and supports software, services, devices, and solutions." },
                 new Stock { Id = 3, Symbol = "AMZN", Name = "Amazon.com, Inc.", Price = 178.75m, Description = "Online retailer and web service provider." },
                 new Stock { Id = 4, Symbol = "GOOGL", Name = "Alphabet Inc.", Price = 153.51m, Description = "Technology company that specializes in Internet-related services and products." },
                 new Stock { Id = 5, Symbol = "META", Name = "Meta Platforms, Inc.", Price = 485.58m, Description = "Technology company that focuses on social media and technology." },
-                
-                // Additional 25 stocks
                 new Stock { Id = 6, Symbol = "TSLA", Name = "Tesla, Inc.", Price = 175.34m, Description = "Electric vehicle and clean energy company." },
                 new Stock { Id = 7, Symbol = "NVDA", Name = "NVIDIA Corporation", Price = 952.76m, Description = "Technology company that designs graphics processing units." },
                 new Stock { Id = 8, Symbol = "JPM", Name = "JPMorgan Chase & Co.", Price = 198.47m, Description = "Financial services company." },
@@ -109,8 +100,6 @@ namespace backend.Data
             };
             
             modelBuilder.Entity<Stock>().HasData(stocks);
-            
-            // Seed trade history for demo user
             modelBuilder.Entity<TradeHistory>().HasData(
                 new TradeHistory { 
                     Id = 1, 
@@ -144,7 +133,7 @@ namespace backend.Data
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Configure to ignore pending model changes warning related to seed data
+
             optionsBuilder.ConfigureWarnings(warnings => 
                 warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
                 
