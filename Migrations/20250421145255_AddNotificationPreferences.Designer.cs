@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend.Data;
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250421145255_AddNotificationPreferences")]
+    partial class AddNotificationPreferences
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,48 +24,6 @@ namespace backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("backend.Models.PriceAlert", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("createdat");
-
-                    b.Property<bool>("IsAboveTarget")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isabovetarget");
-
-                    b.Property<bool>("IsTriggered")
-                        .HasColumnType("boolean")
-                        .HasColumnName("istriggered");
-
-                    b.Property<int>("StockId")
-                        .HasColumnType("integer")
-                        .HasColumnName("stockid");
-
-                    b.Property<decimal>("TargetPrice")
-                        .HasColumnType("numeric")
-                        .HasColumnName("targetprice");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("userid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StockId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("pricealerts");
-                });
 
             modelBuilder.Entity("backend.Models.Stock", b =>
                 {
@@ -469,25 +430,6 @@ namespace backend.Migrations
                             SmsNotificationsEnabled = false,
                             Username = "demo"
                         });
-                });
-
-            modelBuilder.Entity("backend.Models.PriceAlert", b =>
-                {
-                    b.HasOne("backend.Models.Stock", "Stock")
-                        .WithMany()
-                        .HasForeignKey("StockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Stock");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("backend.Models.TradeHistory", b =>

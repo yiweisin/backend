@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using backend.Data;
 using backend.DTOs;
 using backend.Models;
+using backend.Services;
 
 namespace backend.Controllers
 {
@@ -14,10 +16,12 @@ namespace backend.Controllers
     public class TradesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly NotificationService _notificationService;
         
-        public TradesController(AppDbContext context)
+        public TradesController(AppDbContext context, NotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
         
         private int GetUserId()
@@ -83,7 +87,7 @@ namespace backend.Controllers
         }
         
         [HttpPost]
-        public ActionResult<TradeHistoryDto> CreateTrade(CreateTradeDto tradeDto)
+        public async Task<ActionResult<TradeHistoryDto>> CreateTrade(CreateTradeDto tradeDto)
         {
             var userId = GetUserId();
             
@@ -104,7 +108,7 @@ namespace backend.Controllers
             };
             
             _context.TradeHistories.Add(trade);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             
             _context.Entry(trade).Reference(t => t.Stock).Load();
             
@@ -120,34 +124,61 @@ namespace backend.Controllers
                 IsHolding = trade.IsHolding
             };
             
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null && user.EmailNotificationsEnabled && !string.IsNullOrEmpty(user.Email))
+            {
+                string message = $"You have successfully purchased {trade.Stock?.Symbol} at ${trade.EntryPrice}.";
+                string subject = $"New Trade: {trade.Stock?.Symbol} Purchased";
+                
+                await _notificationService.PublishMessageAsync(message, subject, "trade");
+            }
+            
             return CreatedAtAction(nameof(GetTrade), new { id = trade.Id }, response);
         }
         
         [HttpPut("{id}")]
-        public IActionResult UpdateTrade(int id, UpdateTradeDto tradeDto)
+        public async Task<IActionResult> UpdateTrade(int id, UpdateTradeDto tradeDto)
         {
             var userId = GetUserId();
-            var trade = _context.TradeHistories.FirstOrDefault(t => t.Id == id && t.UserId == userId);
+            var trade = await _context.TradeHistories
+                .Include(t => t.Stock)
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
             
             if (trade == null)
             {
                 return NotFound();
             }
             
+            bool wasPreviouslyHolding = trade.IsHolding;
+            
             trade.PNL = tradeDto.PNL;
             trade.IsHolding = tradeDto.IsHolding;
             
             _context.Entry(trade).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            
+            // Send notification when a trade is sold (status changed from holding to not holding)
+            if (wasPreviouslyHolding && !trade.IsHolding)
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null && user.EmailNotificationsEnabled && !string.IsNullOrEmpty(user.Email))
+                {
+                    string profitOrLoss = trade.PNL >= 0 ? "profit" : "loss";
+                    string message = $"You have sold {trade.Stock?.Symbol} with a {profitOrLoss} of ${Math.Abs(trade.PNL)}.";
+                    string subject = $"Trade Closed: {trade.Stock?.Symbol} Sold";
+                    
+                    await _notificationService.PublishMessageAsync(message, subject, "trade");
+                }
+            }
             
             return NoContent();
         }
         
         [HttpDelete("{id}")]
-        public IActionResult DeleteTrade(int id)
+        public async Task<IActionResult> DeleteTrade(int id)
         {
             var userId = GetUserId();
-            var trade = _context.TradeHistories.FirstOrDefault(t => t.Id == id && t.UserId == userId);
+            var trade = await _context.TradeHistories.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
             
             if (trade == null)
             {
@@ -155,7 +186,7 @@ namespace backend.Controllers
             }
             
             _context.TradeHistories.Remove(trade);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             
             return NoContent();
         }

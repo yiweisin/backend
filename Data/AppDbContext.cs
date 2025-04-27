@@ -12,6 +12,7 @@ namespace backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<TradeHistory> TradeHistories { get; set; }
+        public DbSet<PriceAlert> PriceAlerts { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +55,16 @@ namespace backend.Data
             modelBuilder.Entity<TradeHistory>()
                 .Property(t => t.PNL)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<PriceAlert>()
+                .HasOne(p => p.Stock)
+                .WithMany()
+                .HasForeignKey(p => p.StockId);
+                
+            modelBuilder.Entity<PriceAlert>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId);
             
             //SEEDS
             modelBuilder.Entity<User>().HasData(

@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "zsRPHZuuCGQ=",
+  "dgSpecHash": "ecZRzvQGheQ=",
   "success": true,
   "projectFilePath": "/Users/yiweisin/GitHub/backend/backend.csproj",
   "expectedPackageFiles": [
+    "/Users/yiweisin/.nuget/packages/awssdk.core/3.7.402.43/awssdk.core.3.7.402.43.nupkg.sha512",
+    "/Users/yiweisin/.nuget/packages/awssdk.simplenotificationservice/3.7.400.137/awssdk.simplenotificationservice.3.7.400.137.nupkg.sha512",
     "/Users/yiweisin/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/yiweisin/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/9.0.3/microsoft.aspnetcore.authentication.jwtbearer.9.0.3.nupkg.sha512",
     "/Users/yiweisin/.nuget/packages/microsoft.aspnetcore.openapi/9.0.0/microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",

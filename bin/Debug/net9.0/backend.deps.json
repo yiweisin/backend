@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v9.0": {
       "backend/1.0.0": {
         "dependencies": {
+          "AWSSDK.SimpleNotificationService": "3.7.400.137",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.3",
           "Microsoft.AspNetCore.OpenApi": "9.0.0",
           "Microsoft.EntityFrameworkCore.Design": "9.0.3",
@@ -17,6 +18,25 @@
         },
         "runtime": {
           "backend.dll": {}
+        }
+      },
+      "AWSSDK.Core/3.7.402.43": {
+        "runtime": {
+          "lib/net8.0/AWSSDK.Core.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.7.402.43"
+          }
+        }
+      },
+      "AWSSDK.SimpleNotificationService/3.7.400.137": {
+        "dependencies": {
+          "AWSSDK.Core": "3.7.402.43"
+        },
+        "runtime": {
+          "lib/net8.0/AWSSDK.SimpleNotificationService.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.7.400.137"
+          }
         }
       },
       "Humanizer.Core/2.14.1": {
@@ -948,6 +968,20 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AWSSDK.Core/3.7.402.43": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iAo889ehvfXCORxLF+o7BmKnBAtBTWD7aVMTP+P1sPlHlVqvIj4S3MUaDYjR7b1MGUTsE+UBNyj3tu+cj1MBqA==",
+      "path": "awssdk.core/3.7.402.43",
+      "hashPath": "awssdk.core.3.7.402.43.nupkg.sha512"
+    },
+    "AWSSDK.SimpleNotificationService/3.7.400.137": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-yTGNOAAM+pAfGd4wdXGiPnKrXZ2oehYgBQh9lea7vwl05O7sQezCX7pa3mYiZsI2H7d6kSQkgItN07MR/hLuCg==",
+      "path": "awssdk.simplenotificationservice/3.7.400.137",
+      "hashPath": "awssdk.simplenotificationservice.3.7.400.137.nupkg.sha512"
     },
     "Humanizer.Core/2.14.1": {
       "type": "package",
