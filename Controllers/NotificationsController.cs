@@ -84,7 +84,7 @@ namespace backend.Controllers
                     {
                         try
                         {
-                            await _notificationService.UnsubscribeEmailAsync(user.EmailSubscriptionArn);
+                            await _notificationService.UnsubscribeAsync(user.EmailSubscriptionArn);
                         }
                         catch (Exception ex)
                         {
