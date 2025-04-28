@@ -4,8 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using backend.Data;
 using backend.Services;
-using Amazon.XRay.Recorder.Handlers.AspNetCore;
-using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +25,6 @@ builder.Services.AddHostedService<PriceAlertService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
-
 
 var key = builder.Configuration["JwtSettings:Key"] ?? "61faa420414035b316b47d257429d6a8a0da0ee0f0b39566c93bcbf3450fa595";
 builder.Services.AddSingleton(new TokenService(key));
@@ -55,11 +52,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-app.UseXRay("trading-api");
 
 app.UseCors("CorsPolicy");
-
-AWSSDKHandler.RegisterXRayForAllServices();
 
 app.UseAuthentication();
 app.UseAuthorization();
