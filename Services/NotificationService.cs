@@ -9,7 +9,7 @@ namespace backend.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<NotificationService> _logger;
-        private const string EMAIL_TOPIC_ARN = "arn:aws:sns:us-east-1:639765866437:topic-g7"; //ARN
+        private const string EMAIL_TOPIC_ARN = "arn:aws:sns:us-east-1:639765866437:topic-g7:9cfb16ed-a3d8-4862-9d36-aa7aa8b60d29"; //ARN
         public NotificationService(IConfiguration configuration, ILogger<NotificationService> logger)
         {
             _configuration = configuration;
