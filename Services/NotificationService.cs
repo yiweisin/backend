@@ -1,27 +1,37 @@
+using Amazon;
+using Amazon.Runtime;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Amazon.Runtime;
+using System.Threading.Tasks;
 
 namespace backend.Services
 {
     public class NotificationService
     {
-        private readonly IConfiguration _configuration;
         private readonly ILogger<NotificationService> _logger;
-        private const string EMAIL_TOPIC_ARN = "arn:aws:sns:us-east-1:639765866437:topic-g7:9cfb16ed-a3d8-4862-9d36-aa7aa8b60d29"; //ARN
+        private readonly IConfiguration _configuration;
+        private readonly string EMAIL_TOPIC_ARN;
+
         public NotificationService(IConfiguration configuration, ILogger<NotificationService> logger)
         {
             _configuration = configuration;
             _logger = logger;
+            EMAIL_TOPIC_ARN = _configuration["AWS:SNS:TopicArn"];
+            
+            _logger.LogInformation($"Initialized NotificationService with TopicArn: {EMAIL_TOPIC_ARN}");
         }
         
-        private AmazonSimpleNotificationServiceClient GetSnsClient(bool forEmailSubscription = false)
+        private AmazonSimpleNotificationServiceClient GetSnsClient()
         {
-         
             var accessKey = _configuration["AWS:AccessKey"];
             var secretKey = _configuration["AWS:SecretKey"];
             var sessionToken = _configuration["AWS:SessionToken"]; 
+            var region = _configuration["AWS:Region"] ?? "us-east-1";
             
             if (!string.IsNullOrEmpty(accessKey) && !string.IsNullOrEmpty(secretKey))
             {
@@ -30,23 +40,24 @@ namespace backend.Services
                 AWSCredentials credentials;
                 if (!string.IsNullOrEmpty(sessionToken))
                 {
-                  
                     credentials = new SessionAWSCredentials(accessKey, secretKey, sessionToken);
                     _logger.LogInformation("Using session credentials");
                 }
                 else
                 {
-                    
                     credentials = new BasicAWSCredentials(accessKey, secretKey);
                     _logger.LogInformation("Using basic credentials");
                 }
                 
-                return new AmazonSimpleNotificationServiceClient(credentials, Amazon.RegionEndpoint.USEast1);
+                return new AmazonSimpleNotificationServiceClient(
+                    credentials, 
+                    RegionEndpoint.GetBySystemName(region)
+                );
             }
             else
             {
                 _logger.LogInformation("Using environment AWS credentials");
-                return new AmazonSimpleNotificationServiceClient(Amazon.RegionEndpoint.USEast1);
+                return new AmazonSimpleNotificationServiceClient(RegionEndpoint.GetBySystemName(region));
             }
         }
         
@@ -67,18 +78,21 @@ namespace backend.Services
             
             try
             {
-                using var snsClient = GetSnsClient(false);
+                using var snsClient = GetSnsClient();
                 
                 var subscribeRequest = new SubscribeRequest
                 {
                     TopicArn = EMAIL_TOPIC_ARN,
                     Protocol = "email",
                     Endpoint = email,
-                    Attributes = new Dictionary<string, string>
-                    {
-                        { "FilterPolicy", "{\"notificationType\": [\"trade\", \"alert\", \"test\"]}" }
-                    }
+                    ReturnSubscriptionArn = true
                 };
+                
+                // Add filter policy if needed
+                // subscribeRequest.Attributes = new Dictionary<string, string>
+                // {
+                //     { "FilterPolicy", "{\"notificationType\": [\"trade\", \"alert\", \"test\"]}" }
+                // };
                 
                 var response = await snsClient.SubscribeAsync(subscribeRequest);
                 _logger.LogInformation($"Successfully subscribed email. Subscription ARN: {response.SubscriptionArn}");
@@ -100,7 +114,7 @@ namespace backend.Services
             }
         }
         
-        public async Task UnsubscribeEmailAsync(string subscriptionArn)
+        public async Task UnsubscribeAsync(string subscriptionArn)
         {
             if (string.IsNullOrEmpty(subscriptionArn) || subscriptionArn == "pending confirmation")
                 return;
@@ -109,11 +123,11 @@ namespace backend.Services
             {
                 using var snsClient = GetSnsClient();
                 await snsClient.UnsubscribeAsync(subscriptionArn);
-                _logger.LogInformation($"Successfully unsubscribed email. Subscription ARN: {subscriptionArn}");
+                _logger.LogInformation($"Successfully unsubscribed. Subscription ARN: {subscriptionArn}");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error unsubscribing email: {ex.Message}");
+                _logger.LogError($"Error unsubscribing: {ex.Message}");
             }
         }
         
@@ -127,22 +141,25 @@ namespace backend.Services
                 {
                     TopicArn = EMAIL_TOPIC_ARN,
                     Message = message,
-                    Subject = subject,
-                    MessageAttributes = new Dictionary<string, MessageAttributeValue>
-                    {
+                    Subject = subject
+                };
+                
+                // Add message attributes if needed
+                publishRequest.MessageAttributes = new Dictionary<string, MessageAttributeValue>
+                {
+                    { 
+                        "notificationType", 
+                        new MessageAttributeValue 
                         { 
-                            "notificationType", 
-                            new MessageAttributeValue 
-                            { 
-                                DataType = "String", 
-                                StringValue = notificationType 
-                            } 
-                        }
+                            DataType = "String", 
+                            StringValue = notificationType 
+                        } 
                     }
                 };
                 
-                await snsClient.PublishAsync(publishRequest);
+                var response = await snsClient.PublishAsync(publishRequest);
                 _logger.LogInformation($"Successfully published message to topic: {EMAIL_TOPIC_ARN}");
+                _logger.LogInformation($"Message ID: {response.MessageId}");
             }
             catch (AmazonSimpleNotificationServiceException ex)
             {
