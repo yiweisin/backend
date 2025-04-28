@@ -44,9 +44,33 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "AWS.Logger.AspNetCore": {
+              "target": "Package",
+              "version": "[3.5.3, )"
+            },
             "AWSSDK.SimpleNotificationService": {
               "target": "Package",
               "version": "[3.7.400.137, )"
+            },
+            "AWSSDK.XRay": {
+              "target": "Package",
+              "version": "[3.7.401.84, )"
+            },
+            "AWSXRayRecorder.Core": {
+              "target": "Package",
+              "version": "[2.15.0, )"
+            },
+            "AWSXRayRecorder.Handlers.AspNetCore": {
+              "target": "Package",
+              "version": "[2.12.0, )"
+            },
+            "AWSXRayRecorder.Handlers.AwsSdk": {
+              "target": "Package",
+              "version": "[2.13.0, )"
+            },
+            "AWSXRayRecorder.Handlers.EntityFramework": {
+              "target": "Package",
+              "version": "[1.6.0, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
